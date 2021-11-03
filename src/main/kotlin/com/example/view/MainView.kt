@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCombination
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
+import javafx.scene.shape.Path
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import tornadofx.View
@@ -26,6 +27,7 @@ import java.awt.Toolkit
 import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
+import javax.xml.stream.Location
 
 
 class MainView : View("Screenshoter") {
@@ -46,18 +48,18 @@ class MainView : View("Screenshoter") {
     var starty = 0.0
     var endx = 0.0
     var endy = 0.0
+    lateinit var path:File
 
     val save = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
     val fast_save = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN)
     val make_screen = KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN)
-
 
     init {
         image.fitWidth = canvaszone.width
         image.fitHeight = canvaszone.height
         canvas.width = image.fitWidth
         canvas.height = image.fitHeight
-
+        makepathfile()
         canvas.onMousePressed = EventHandler { e ->
             //println(1)
             startx = e.x
@@ -81,6 +83,22 @@ class MainView : View("Screenshoter") {
                 canvas.width = image.fitWidth
                 canvas.height = image.fitHeight
             }
+        }
+    }
+
+    fun makepathfile(){
+        val fileName = "data.txt"
+        var file = File(fileName)
+
+        // create a new file
+        val isNewFileCreated :Boolean = file.createNewFile()
+
+        if(isNewFileCreated){
+            //println("$fileName is created successfully.")
+        } else{
+            //println("$fileName already exists.")
+            path = File(file.readText())
+            println(path)
         }
     }
 
@@ -109,14 +127,8 @@ class MainView : View("Screenshoter") {
                         g.fill = colorPick.value
                         g.fillRect(x, y, size, size)
                     }
-
                 }
             }
-
-
-
-
-
     }
 
     fun setimg(){
@@ -149,13 +161,6 @@ class MainView : View("Screenshoter") {
     fun on_exit(){
         Platform.exit()
     }
-
-    /*fun handle(event: KeyEvent) {
-        if (event.code == KeyCode.S && event.isControlDown) {
-            on_save()
-        }
-    }*/
-
 
     fun on_save(){
         if(image.image != null) {
@@ -225,7 +230,11 @@ class MainView : View("Screenshoter") {
         if(image.image != null) {
             val directoryChooser = DirectoryChooser()
             directoryChooser.title = "Select dir"
-            val dir = directoryChooser.showDialog(primaryStage)
+            //println(directoryChooser.initialDirectory)
+            if(path.exists()) {
+                directoryChooser.initialDirectory = path
+            }
+            var dir = directoryChooser.showDialog(primaryStage)
             if (dir != null) {
                 var ssp = SnapshotParameters()
                 ssp.viewport = Rectangle2D(canvaszone.layoutX, canvaszone.layoutY, image.fitWidth, image.fitHeight)
@@ -235,6 +244,9 @@ class MainView : View("Screenshoter") {
 
                 try {
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file)
+                    val fileName = "data.txt"
+                    var file = File(fileName)
+                    file.writeText(dir.toString())
                 } catch (e: IOException) {
                     //println("Failed to save pic: $e")
                     val alert = Alert(AlertType.ERROR)
@@ -261,19 +273,4 @@ class MainView : View("Screenshoter") {
         alert.contentText = "CTRL+F - ScreenShot\nCTRL+SHIFT+S - Save\nCTRL+S - Fast Save"
         alert.showAndWait()
     }
-
-
-    /*override val root = vbox {
-        alignment = Pos.CENTER
-        label(mainController.labelText) {
-            //bind(mainController.labelText)
-            addClass(Styles.heading)
-        }
-        button("Click!"){
-            action {
-                mainController.getRandomName()
-            }
-        }
-    }*/
-
 }
