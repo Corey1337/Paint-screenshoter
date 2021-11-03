@@ -40,6 +40,7 @@ class MainView : View("Screenshoter") {
     val brushsize: TextField by fxid()
     val eraser: CheckBox by fxid()
     val colorPick: ColorPicker by fxid()
+    val cuter: CheckBox by fxid()
     val g = canvas.graphicsContext2D
 
     val save = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
@@ -67,19 +68,42 @@ class MainView : View("Screenshoter") {
     }
 
     fun painting(){
-        canvas.onMouseDragged = EventHandler { e ->
-            val size = brushsize.text.toDouble()
-            val x = e.x - size / 2
-            val y = e.y - size / 2
-            if(image.image != null) {
-                if (eraser.isSelected) {
-                    g.clearRect(x, y, size, size)
-                } else {
-                    g.fill = colorPick.value
-                    g.fillRect(x, y, size, size)
+            canvas.onMouseDragged = EventHandler { e ->
+                val size = brushsize.text.toDouble()
+                val x = e.x - size / 2
+                val y = e.y - size / 2
+                if (image.image != null && !cuter.isSelected) {
+                    if (eraser.isSelected) {
+                        g.clearRect(x, y, size, size)
+                    } else {
+                        g.fill = colorPick.value
+                        g.fillRect(x, y, size, size)
+                    }
+
                 }
             }
-        }
+            println(1)
+            var startx = 0.0
+            var starty = 0.0
+            var endx = 0.0
+            var endy = 0.0
+            canvas.onMousePressed = EventHandler { e ->
+                startx = e.x
+                starty = e.y
+                println(startx)
+                println(starty)
+            }
+            canvas.onMouseReleased = EventHandler { e ->
+                endx = e.x
+                endy = e.y
+                println(endx)
+                println(endy)
+                if(cuter.isSelected) {
+                    g.fill = colorPick.value
+                    g.fillRect(startx, starty, endx - startx, endy - starty)
+                }
+            }
+
 
     }
 
