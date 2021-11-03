@@ -42,6 +42,10 @@ class MainView : View("Screenshoter") {
     val colorPick: ColorPicker by fxid()
     val cuter: CheckBox by fxid()
     val g = canvas.graphicsContext2D
+    var startx = 0.0
+    var starty = 0.0
+    var endx = 0.0
+    var endy = 0.0
 
     val save = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
     val fast_save = KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN)
@@ -53,6 +57,22 @@ class MainView : View("Screenshoter") {
         image.fitHeight = canvaszone.height
         canvas.width = image.fitWidth
         canvas.height = image.fitHeight
+
+        canvas.onMousePressed = EventHandler { e ->
+            //println(1)
+            startx = e.x
+            starty = e.y
+        }
+        canvas.onMouseReleased = EventHandler { e ->
+            //println(2)
+            endx = e.x
+            endy = e.y
+            if(cuter.isSelected) {
+                g.fill = colorPick.value
+                g.fillRect(minOf(startx, endx), minOf(starty, endy),
+                    maxOf(endx,startx) - minOf(startx, endx), maxOf(endy, starty) - minOf(starty, endy))
+            }
+        }
     }
 
     fun Combi(){
@@ -69,6 +89,7 @@ class MainView : View("Screenshoter") {
 
     fun painting(){
             canvas.onMouseDragged = EventHandler { e ->
+                //println(0)
                 val size = brushsize.text.toDouble()
                 val x = e.x - size / 2
                 val y = e.y - size / 2
@@ -82,27 +103,9 @@ class MainView : View("Screenshoter") {
 
                 }
             }
-            println(1)
-            var startx = 0.0
-            var starty = 0.0
-            var endx = 0.0
-            var endy = 0.0
-            canvas.onMousePressed = EventHandler { e ->
-                startx = e.x
-                starty = e.y
-                println(startx)
-                println(starty)
-            }
-            canvas.onMouseReleased = EventHandler { e ->
-                endx = e.x
-                endy = e.y
-                println(endx)
-                println(endy)
-                if(cuter.isSelected) {
-                    g.fill = colorPick.value
-                    g.fillRect(startx, starty, endx - startx, endy - starty)
-                }
-            }
+
+
+
 
 
     }
