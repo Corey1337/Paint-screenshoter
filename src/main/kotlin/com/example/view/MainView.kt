@@ -69,8 +69,17 @@ class MainView : View("Screenshoter") {
             endy = e.y
             if(cuter.isSelected) {
                 g.fill = colorPick.value
-                g.fillRect(minOf(startx, endx), minOf(starty, endy),
-                    maxOf(endx,startx) - minOf(startx, endx), maxOf(endy, starty) - minOf(starty, endy))
+                //g.fillRect(minOf(startx, endx), minOf(starty, endy),
+                //    maxOf(endx,startx) - minOf(startx, endx), maxOf(endy, starty) - minOf(starty, endy))
+                var ssp = SnapshotParameters()
+                ssp.viewport = Rectangle2D(minOf(startx, endx), minOf(starty, endy),
+                        maxOf(endx,startx) - minOf(startx, endx), maxOf(endy, starty) - minOf(starty, endy))
+                val img: WritableImage = canvaszone.snapshot(ssp, null)
+                image.fitWidth = img.width
+                image.fitHeight = img.height
+                image.image = img
+                canvas.width = image.fitWidth
+                canvas.height = image.fitHeight
             }
         }
     }
